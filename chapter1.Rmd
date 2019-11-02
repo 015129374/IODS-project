@@ -2,13 +2,13 @@
 # About the project
 
 HOW ARE YOU FEELING RIGHT NOW?  
-All of this is new and quite promising, I do not know anything about the subject and learning will be probably challenging. However I am eager to start.  
+All of this is new and quite promising, I do not know anything about the subject and learning will be probably challenging. However I am eager to start. I have experienced some difficulties in this first task as I am unfamiliar with the whole thing. In the end, I succeeded to overcome those problems.  
 
 WHAT DO YOU EXPECT TO LEARN?  
-I'd like to learn about processing of quantitative data to be used in my research in political science and organizations. So mainly about working with statistics and also with data visualization.    
+I'd like to learn about processing of large datasets to be used in my research. My specialization is in political science and organizations. So, I would like to learn mainly about working with statistics and also with data visualization.    
 
 WHERE DID YOU HEAR ABOUT THIS COURSE?  
-My supervisor has warmly recommended me to enroll in this course.   
+My supervisor has warmly recommended me to enrol in this course.   
 
 LINK TO MY GITHUB REPOSITORY  
 [link](https://github.com/015129374/IODS-project)
