@@ -55,9 +55,7 @@ dim(learning2014)
 
 
 ?write.csv
-
-write.table(learning2014, file = "", append = FALSE, quote = TRUE, sep = " ",
-            eol = "\n", na = "NA", dec = ".", row.names = TRUE,
-            col.names = TRUE, qmethod = c("escape", "double"),
-            fileEncoding = "")
-
+#Save file in .csv and table
+write.csv(learning2014, file="learning2014.csv")
+write.table(learning2014, file = "learning2014", sep = "\t",
+            row.names = TRUE, col.names = NA)
