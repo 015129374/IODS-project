@@ -1,7 +1,134 @@
-# Insert chapter 2 title here
+# Chapter 2: Regression and Model Validation.  
 
 *Describe the work you have done this week and summarize your learning.*
-
 - Describe your work and results clearly. 
 - Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
 - Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+
+## 2.1.Data Wrangling.  
+
+The [starting dataset](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt), comprised 183 objects and 60 variables. It was about the outcomes of the learning process in a course in 2014. The variables included students' __```gender```__, __```age```__, __```attitude```__ towards statistics and __```points```__ scored in the examination. Other variables included questions on the modalities of studying. To threat these data into a new dataset, the following operations were in order:  
+ reading of the given dataset with ```read.table()```, ```dim()``` and ```str()```;  
+ division of each number in a vector, and creation of the column __```attitude```__ by scaling of the dimension ```Attitude```;  
+ questions were grouped and means calculated by the function ```rowMeans()``` thus creating the columns __```surface learning```__, __```deep learning```__ and __```strategic learning```__;  
+the obervations were also filtered, excluding the exam results scoring zero points by using the function ```filter()```;  
+The file was then saved into ```.csv``` and ```.txt```.  
+
+The resulting new finalized dataset has an overall dimension of 166 objects, and it includes 7 variables ordered in __```columns```__.
+
+## 2.2.Data Analysis.  
+### 2.2.1.Reading of the dataframe "learning2014" and exploration of its dimension and structure.  
+First of all, I read the new dataframe with the function ```read.table()```. 
+```{r echo=FALSE}
+learning2014 <- read.table("./data/learning2014.txt", sep= "\t", header = TRUE)
+```
+
+```{r echo=FALSE}
+learning2014$X <- NULL
+```
+
+Then I use of the function ```dim()``` to show the dimension of the dataframe that is of 166 objects and 7 variables as explained in the above-mentioned data wrangling section:
+```{r echo=FALSE}
+dim(learning2014)
+```
+
+By typing the function ```str()```, it shows the structure of the dataframe:
+```{r echo=FALSE}
+str(learning2014)
+```
+
+### 2.2.2.Graphical overview of the data and summary of their variables.  
+#To visualize the data I type the functions ```install.packages()``` to install the visualization packages ```ggplot2``` and ```GGally```. Then by using the function ```library()``` I open them in the project.
+
+
+install.packages("ggplot2")  
+install.packages("GGally")  
+library(ggplot2)  
+
+
+#### Visualizing and Exploring the dataframe.  
+#The libraries are opened:  
+```{r echo=FALSE, eval=FALSE}
+p1 <- ggplot(learning2014, aes(x = Attitude, y = Points, col = gender))
+```
+
+```{r echo=FALSE, eval=FALSE}
+p2 <- p1 + geom_point()
+```
+
+```{r echo=FALSE, eval=FALSE}
+p2
+```
+
+```{r echo=FALSE, eval=FALSE}
+p3 <- p2 + geom_smooth(method = "lm")
+```
+
+```{r echo=FALSE, eval=FALSE}
+p4 <- ggtitle("Student's attitude versus exam points")
+```
+
+```{r echo=FALSE, eval=FALSE}
+p2 
+```
+
+```{r echo=FALSE}
+library(GGally)
+```
+
+```{r echo=FALSE}
+library(ggplot2)
+```
+
+#By using the fast plotting function ```pairs()```, we can see a scatterplot matrix resulting from the draws of all the possible scatterplots from the columns of the dataframe.  
+```{r echo=FALSE}
+pairs(learning2014 [-2], col = learning2014$gender)
+```
+
+
+#This second plot matrix is more advanced, and it is made with ```ggpairs()```.
+```{r echo=FALSE}
+p <-ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3), lower = list (combo = wrap ("facethist", bins = 20)))
+```
+
+```{r echo=FALSE}
+p
+```
+
+#### Output interpretation and description.  
+
+#### On the distribution of the variables and their in-between relations.  
+
+### 2.2.3.Multiple Regression Model.  
+#I have chosen three variables "Attitude", "deep learning" and "surface learning", with the target variable "exam points".  
+ggpairs(learning2014, lower = list(combo = wrap("facethist", bins = 20)))
+regression_model <- lm(Points ~ Attitude + deep + surf, data = learning2014)
+summary(regression_model)
+
+#### Commentary and interpretation of the results.  
+#### Explanation and interpretation of the statistical test related to the model parameters.  
+
+#### 2.2.4.Explanation of the relationships between the chosen explanatory variables and the target variable. With the summary of the fitted model (interpret the model parameters).   
+
+#### Explaination and interpretation of the multiple R squared of the model.  
+
+### 2.2.5.Diagnostic plots  
+
+#### Residuals _vs_ Fitted values.  
+```{r echo = FALSE}
+plot(lm(Points ~ Attitude + deep + surf, data = learning2014), which = 1)
+```
+
+#### Normal QQ-plot.  
+```{r echo = FALSE}
+plot(lm(Points ~ Attitude + deep + surf, data = learning2014), which = 2)
+```
+
+#### Residuals _vs_ Leverage.  
+```{r echo = FALSE}
+plot(lm(Points ~ Attitude + deep + surf, data = learning2014), which = 5)
+```
+
+
+#### __Explanation of the model's assumptions and interpretation of their validity on the bases of the diagnostic plots.__  
+
