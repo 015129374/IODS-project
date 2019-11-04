@@ -54,8 +54,17 @@ learning2014 <- filter(learning2014, Points > 0)
 dim(learning2014)
 
 
-?write.csv
 #Save file in .csv and table
 write.csv(learning2014, file="learning2014.csv")
-write.table(learning2014, file = "learning2014", sep = "\t",
+write.table(learning2014, file = "learning2014.txt", sep = "\t",
             row.names = TRUE, col.names = NA)
+
+#Readings "learning2014.csv"
+read.csv("learning2014.csv")
+str("learning2014.csv")
+head("learning.csv")
+
+#Readings "learning2014.csv"
+read.table("learning2014.txt")
+str("learning2014.txt")
+head("learning2014.txt")
