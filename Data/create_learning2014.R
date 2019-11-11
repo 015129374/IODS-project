@@ -43,14 +43,20 @@ learning2014$stra <- rowMeans(strategic_columns)
 surface_columns <- select(learning2014, one_of(surface_questions))
 learning2014$surf <- rowMeans(surface_columns)
 
-  #(task 3) Choosing columns for the new dataset.
+  #(task 3) Choosing columns for the new dataset and change names.
 library(dplyr)
 keep_columns <- c("gender", "Age", "Attitude", "deep", "stra", "surf", "Points")
 learning2014 <- select(learning2014, one_of(keep_columns))
 
+colnames(learning2014)
+colnames(learning2014)[2] <-"age"
+colnames(learning2014)[3] <-"attitude"
+colnames(learning2014)[7] <-"points"
+colnames(learning2014)
+
 #(task 3) Exclude observation where the exam point variable is zero
 library(dplyr)
-learning2014 <- filter(learning2014, Points > 0)
+learning2014 <- filter(learning2014, points > 0)
 dim(learning2014)
 
 
@@ -68,3 +74,4 @@ head("learning.csv")
 read.table("learning2014.txt")
 str("learning2014.txt")
 head("learning2014.txt")
+

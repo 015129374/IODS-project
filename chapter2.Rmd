@@ -7,14 +7,14 @@
 
 ## 2.1.Data Wrangling.  
 
-The [starting dataset](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt), comprised 183 objects and 60 variables. It was about the outcomes of the learning process in a course in 2014. The variables included students' __```gender```__, __```age```__, __```attitude```__ towards statistics and __```points```__ scored in the examination. Other variables included questions on the modalities of studying. To threat these data into a new dataset, the following operations were in order:  
+The [starting dataset](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt), comprised 183 objects and 60 variables. It was about the outcomes of the learning process in a course in 2014. The variables included students' __```gender```__, __```age```__, __```attitude```__ towards statistics and __```points```__ scored in the examination. Other variables included questions on the modalities of studying, for a comprehensive review of the starting dataset formation, see [here](https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS3-meta.txt). To threat these data into a new dataset, the following operations were in order:  
  reading of the given dataset with ```read.table()```, ```dim()``` and ```str()```;  
  division of each number in a vector, and creation of the column __```attitude```__ by scaling of the dimension ```Attitude```;  
  questions were grouped and means calculated by the function ```rowMeans()``` thus creating the columns __```surface learning```__, __```deep learning```__ and __```strategic learning```__;  
 the obervations were also filtered, excluding the exam results scoring zero points by using the function ```filter()```;  
 The file was then saved into ```.csv``` and ```.txt```.  
 
-The resulting new finalized dataset has an overall dimension of 166 objects, and it includes 7 variables ordered in __```columns```__.
+The resulting new finalized dataset has an overall dimension of 166 objects, and it includes 7 variables, if omitting gender, ordered in __```columns```__.
 
 ## 2.2.Data Analysis.  
 ### 2.2.1.Reading of the dataframe "learning2014" and exploration of its dimension and structure.  
@@ -38,7 +38,7 @@ str(learning2014)
 ```
 
 ### 2.2.2.Graphical overview of the data and summary of their variables.  
-#To visualize the data I type the functions ```install.packages()``` to install the visualization packages ```ggplot2``` and ```GGally```. Then by using the function ```library()``` I open them in the project.
+To visualize the data I type the functions ```install.packages()``` to install the visualization packages ```ggplot2``` and ```GGally```. Then by using the function ```library()``` I open them in the project.
 
 
 install.packages("ggplot2")  
@@ -47,7 +47,7 @@ library(ggplot2)
 
 
 #### Visualizing and Exploring the dataframe.  
-#The libraries are opened:  
+The libraries are opened:  
 ```{r echo=FALSE, eval=FALSE}
 p1 <- ggplot(learning2014, aes(x = Attitude, y = Points, col = gender))
 ```
@@ -80,13 +80,14 @@ library(GGally)
 library(ggplot2)
 ```
 
-#By using the fast plotting function ```pairs()```, we can see a scatterplot matrix resulting from the draws of all the possible scatterplots from the columns of the dataframe.  
+By using the fast plotting function ```pairs()```, we can see a scatterplot matrix resulting from the draws of all the possible scatterplots from the columns of the dataframe. Different colors are used for males and females. 
+
 ```{r echo=FALSE}
-pairs(learning2014 [-2], col = learning2014$gender)
+pairs(learning2014 [-1], col = learning2014$gender)
 ```
 
 
-#This second plot matrix is more advanced, and it is made with ```ggpairs()```.
+This second plot matrix is more advanced, and it is made with ```ggpairs()```.
 ```{r echo=FALSE}
 p <-ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3), lower = list (combo = wrap ("facethist", bins = 20)))
 ```
@@ -100,12 +101,28 @@ p
 #### On the distribution of the variables and their in-between relations.  
 
 ### 2.2.3.Multiple Regression Model.  
-#I have chosen three variables "Attitude", "deep learning" and "surface learning", with the target variable "exam points".  
+I have chosen three variables "attitude", "deep learning" and "surface learning", with the target variable "exam points" to fit a regression model analysis.  
+
+```{r echo=FALSE}
+library(ggplot2)
+```
+
+Drawing a plot matrix with ```ggpairs()```.  
+```{r echo=FALSE}
 ggpairs(learning2014, lower = list(combo = wrap("facethist", bins = 20)))
+```
+
+Fitting the regression models with three explanatory variables and running the summary:
+```{r echo=FALSE}
 regression_model <- lm(Points ~ Attitude + deep + surf, data = learning2014)
+```
+
+```{r echo=FALSE}
 summary(regression_model)
+```
 
 #### Commentary and interpretation of the results.  
+
 #### Explanation and interpretation of the statistical test related to the model parameters.  
 
 #### 2.2.4.Explanation of the relationships between the chosen explanatory variables and the target variable. With the summary of the fitted model (interpret the model parameters).   
@@ -131,4 +148,17 @@ plot(lm(Points ~ Attitude + deep + surf, data = learning2014), which = 5)
 
 
 #### __Explanation of the model's assumptions and interpretation of their validity on the bases of the diagnostic plots.__  
+A Multiple Linear Regression Model has few assumptions:  
+  a _linear relationship_ between the target variable and the explanatory variables,    usually revealed by scatterplots;  
+  a _multivariate normality_, which means that the residuals are normally distributed.   The QQ-plot can reveal it;  
+  the _absence of multicollinearity_, in other words, the explanatory variables are     not highly correlated to each other.  
+  _homoscedasticity_: or constant variance of errors. There is a similar variance of error terms across the values of the explanatory variable. A plot of standardized residuals versus predicted values shows if the points are equally distributed across all values of the dependent variables.  
+The diagnostic plots delivered the following observations:  
+In the __residuals _vs_ fitted values__, the plot is utilized to check the assumption of linear relationship. An horizontal line, without distinct patterns is an indicator for a linear relationship, in this case, the red line is more or less horizontal at zero. Hence here linear relationship could be assumed.  
+In the __normal QQ-plot__ the plot reveals the presence of multivariate normality. A good indication is if the residual points follow the straight dashed line. For the majority it is the case here, hence normality can also be assumed.  
+In the __residuals _vs_ leverage__, the plot identifies the impact of a single observation on the model. Influential points lie at the upper or at the lower right corner in a position where they are influential against a regression line. In this case the points are on the left side of the plot, thus we can say that there is no leverage.
+
+```{r echo=FALSE, eval=FALSE}
+[Reference](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/)
+```
 
