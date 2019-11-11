@@ -85,9 +85,9 @@ The summary of the variables:
 summary(learning2014)
 ```
 
-#### Output interpretation and description.  
+#### Output interpretation and description, distribution of the variables and their in-between relations.  
+The females are almost double of the males who present a wider age range. The summary suggest a significant correlation for surf vs deep and points vs attitude.
 
-#### On the distribution of the variables and their in-between relations.  
 
 ### 2.1.3.Multiple Regression Model.  
 I have chosen three variables "attitude", "deep learning" and "surface learning", with the target variable "exam points" to fit a regression model analysis.  
@@ -111,19 +111,12 @@ summary(regression_model)
 ```
 
 #### Commentary and interpretation of the results.  
-
+__MISSING__
 #### Explanation and interpretation of the statistical test related to the model parameters.  
+__MISSING__
+#### 2.1.4.Explanation of the relationships between the chosen explanatory variables and the target variable. With the summary of the fitted model (interpret the model parameters). Explaination and interpretation of the multiple R squared of the model.  
+The adjusted R square of 0.1876 denotes a poorly fitting function to the explanatory variables. Only attitude presents statistical significance.
 
-#### 2.1.4.Explanation of the relationships between the chosen explanatory variables and the target variable. With the summary of the fitted model (interpret the model parameters).   
-The 
-
-#### Explaination and interpretation of the multiple R squared of the model. 
-The adjusted R square of 0.1876 denotes a poorly fitting function to the explanatory variables.
-
-
-```{r echo=FALSE, eval=FALSE}
-[Reference](https://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit)
-```
 
 ### 2.1.5.Diagnostic plots  
 
