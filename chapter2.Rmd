@@ -112,8 +112,10 @@ summary(regression_model)
 
 #### Commentary and interpretation of the results.  
 __MISSING__
+
 #### Explanation and interpretation of the statistical test related to the model parameters.  
 __MISSING__
+
 #### 2.1.4.Explanation of the relationships between the chosen explanatory variables and the target variable. With the summary of the fitted model (interpret the model parameters). Explaination and interpretation of the multiple R squared of the model.  
 The adjusted R square of 0.1876 denotes a poorly fitting function to the explanatory variables. Only attitude presents statistical significance.
 
