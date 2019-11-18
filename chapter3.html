@@ -626,19 +626,21 @@ summary {
 <pre><code>## [1] 0.2984293</code></pre>
 <pre><code>## [1] 0.7015707</code></pre>
 <pre><code>## [1] 0.2460733</code></pre>
-<p>The first and third functions deliver better results than in the case of probability = 1. Itworks better than guessing.</p>
+<p>The first and third functions deliver better results than in the case of probability = 1. It works better than guessing.</p>
 </div>
 </div>
 <div id="bonus-10-fold-model-cross-validation." class="section level3">
 <h3>3.2.7. <strong>Bonus</strong>: 10-fold model cross-validation.</h3>
 <p>Cross validation is a technique to assess how the results of a statistical analysis will generalize to an independent data set. In a cross validation, a sample of data is partitioned into complementary subsets (training, larger and testing, smaller), performing the analysis on the former and validating the results on the latter. The subsets used here are K = 10.</p>
 <pre><code>## [1] 0.2460733</code></pre>
+<p>With leave-one-out cross validation:</p>
 <pre><code>## [1] 0.2460733</code></pre>
-<pre><code>## [1] 0.2486911</code></pre>
+<p>with 10-fold cross validation:</p>
+<pre><code>## [1] 0.2460733</code></pre>
 <p>The ten-fold cross validation shows higher prediction error on the testing data compared to the training data. It is also lower than the 0.26 in the Datacamp exercise.</p>
 </div>
-<div id="super-bonus-performance-comparation-via-cross-validation." class="section level3">
-<h3>3.2.8. <strong>Super Bonus</strong>: performance comparation via cross-validation.</h3>
+<div id="super-bonus-performance-comparation-via-cross-validation-plots-missing." class="section level3">
+<h3>3.2.8. <strong>Super Bonus</strong>: performance comparation via cross-validation (<strong>PLOTS MISSING</strong>).</h3>
 <p>At first I use a logistic regression model with 22 predictors.</p>
 <pre><code>## [1] 0.2460733</code></pre>
 <p>The function is performed with leave-one-out cross validation.</p>
@@ -649,12 +651,12 @@ summary {
 <p>The function is performed with leave-one-out cross validation.</p>
 <pre><code>## [1] 0.2696335</code></pre>
 <p>Here the result is given by ten-fold cross validation.</p>
-<pre><code>## [1] 0.2565445</code></pre>
+<pre><code>## [1] 0.2748691</code></pre>
 <p>With 10 predictors</p>
 <p>The function is performed with leave-one-out cross validation.</p>
 <pre><code>## [1] 0.2670157</code></pre>
 <p>Here the result is given by ten-fold cross validation.</p>
-<pre><code>## [1] 0.2513089</code></pre>
+<pre><code>## [1] 0.2722513</code></pre>
 <p>With 5 predictors</p>
 <p>The function is performed with leave-one-out cross validation.</p>
 <pre><code>## [1] 0.2460733</code></pre>
