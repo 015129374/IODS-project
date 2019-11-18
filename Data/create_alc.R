@@ -1,4 +1,4 @@
-#Francesco Durante, 13.11.2019. Creation of a new dataset from [a previous dataset] (https://archive.ics.uci.edu/ml/datasets/Student+Performance)
+Francesco Durante, 13.11.2019. Creation of a new dataset from [a previous dataset] (https://archive.ics.uci.edu/ml/datasets/Student+Performance)
 
 #1.3.Reading of student-mat and -por files, and exploration of data dimensions and structure
 

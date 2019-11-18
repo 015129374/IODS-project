@@ -1,0 +1,248 @@
+# Chapter 3: Logistic Regression.  
+
+## 3.2.Data Analysis.  
+
+### 3.2.2.Reading of the dataframe "alc", its description and printing of variables' names. 
+In this chapter, we will analyze a dataset resulted from the data wrangling of another [dataset](https://archive.ics.uci.edu/ml/datasets/Student+Performance) about students' performance in high school in mathematics and portugese language. Hereinafter are the variable of the dataset we are going to analyze:
+```{r echo=FALSE}
+alc <- read.csv("alc.csv")
+```
+
+```{r echo=FALSE}
+alc$X <- NULL
+```
+
+```{r echo=FALSE}
+colnames(alc)
+```
+
+Alltogether the dataset has a dimension of: 
+```{r echo=FALSE}
+dim(alc)
+```
+
+### 3.2.3.Choosing four interesting variables, and hypotesis' formulation in relation to alcohol consumption.  
+I choose four variables of interest on which I build some hypotheses:  
+
+ VARIABLE CHOSEN   |   RELATED HYPOTHESIS 
+-----------------  | -------------------------------------------------------------------------------
+ ```"goout"```     |  *H1:* Students who go out more have higher alcohol consumption.
+ ```"freetime"```  |  *H2:* Students who have more free time are more prone to drink.
+ ```"studytime"``` |  *H3:* The more the studytime, the less a student drinks.
+ ```"romantic"```  |  *H4:* Given the courting dynamics, romantics drink less. 
+ 
+
+### 3.2.4.Numerical and graphical exploration of variables distribution in relation to alcohol consumption.  
+Let's start with a graphical overview of the dataset variable distribution, in relation to the alcohol consumption. By installing and calling `"tidyr"`, `"dplyr"`, and `"ggplot2"`, and then by combining the function `glimpse()` via the pipe operator `%>%` to the plot generating function `ggplot()`; we get the following plot:
+
+```{r echo=FALSE, include=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r echo=FALSE, include=FALSE}
+glimpse(alc)
+```
+
+```{r echo=FALSE, include=FALSE}
+gather(alc) %>% glimpse
+```
+
+```{r echo=FALSE, warning=FALSE}
+gather(alc) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+```
+
+#### Cross-tabulations.  
+Let's now focus on the cross-tabulations for the specific interest variables on which hypotheses were posed:
+
+###### Go out *and* Alcohol use.
+```{r echo=FALSE}
+alc %>% group_by(goout, alc_use) %>% summarise(count = n(), mean_grade = mean(G3))
+```
+
+###### Free time *and* Alcohol use.
+```{r echo=FALSE}
+alc %>% group_by(freetime, alc_use) %>% summarise(count = n(), mean_grade = mean(G3))
+```
+
+###### Study time *and* Alcohol use.
+```{r echo=FALSE}
+alc %>% group_by(studytime, alc_use) %>% summarise(count = n(), mean_grade = mean(G3))
+```
+
+###### Romantic *and* Alcohol use.
+```{r echo=FALSE}
+alc %>% group_by(romantic, alc_use) %>% summarise(count = n(), mean_grade = mean(G3))
+```
+
+#### Bar plots.  
+```{r echo=FALSE}
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+b1 <- ggplot(alc, aes(x = goout, y = alc_use, col = sex)) + ggtitle("Going out and alcohol use.")
+```
+
+```{r echo=FALSE}
+B1 <- b1 + geom_col() + labs(x = "Going out", y = "Alcohol use")
+```
+
+```{r echo=FALSE}
+B1
+```
+
+```{r echo=FALSE}
+b2 <- ggplot(alc, aes(x = freetime, y = alc_use, col = sex)) + ggtitle("Free time and alcohol use.")
+```
+
+```{r echo=FALSE}
+B2 <- b2 + geom_col() + labs(x = "Free time", y = "Alcohol use")
+```
+
+```{r echo=FALSE}
+B2
+```
+
+```{r echo=FALSE}
+b3 <- ggplot(alc, aes(x = studytime, y = alc_use, col = sex)) + ggtitle("Study time and alcohol use.")
+```
+
+```{r echo=FALSE}
+B3 <- b3 + geom_col() + labs(x = "Study time", y = "Alcohol use"
+                             )
+```
+
+```{r echo=FALSE}
+B3
+```
+
+```{r echo=FALSE}
+b4 <- ggplot(alc, aes(x = romantic, y = alc_use, col = sex)) + ggtitle("Romantics and alcohol use.")
+```
+
+```{r echo=FALSE}
+B4 <- b4 + geom_col() + labs(x = "Romantic", y = "Alcohol use")
+```
+
+```{r echo=FALSE}
+B4
+```
+
+#### Box plots.  
+```{r echo=FALSE}
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+par(mfrow = c(2,2))
+```
+
+```{r echo=FALSE}
+g1 <- ggplot(alc, aes(x = goout, y = alc_use, col = sex)) + ggtitle("Going out and alcohol use.")
+```
+
+```{r echo=FALSE}
+g1 + geom_boxplot() + labs(x = "Going out", y ="Alcohol use")
+```
+
+```{r echo=FALSE}
+g2 <- ggplot(alc, aes(x = freetime, y = alc_use, col = sex)) + ggtitle("Free time and alcohol use.")
+```
+
+```{r echo=FALSE}
+g2 + geom_boxplot() + labs(x = "Free time", y = "Alcohol use")
+```
+
+```{r echo=FALSE}
+g3 <- ggplot(alc, aes(x = studytime, y = alc_use, col = sex)) + ggtitle("Study time and alcohol use.")
+```
+
+```{r echo=FALSE}
+g3 + geom_boxplot() + labs(x = "Study time", y = "Alcohol use")
+```
+
+```{r echo=FALSE}
+g4 <- ggplot(alc, aes(x = romantic, y = alc_use, col = sex)) + ggtitle("Romantics and alcohol use.")
+```
+
+```{r echo=FALSE}
+g4 + geom_boxplot() + labs(x = "Romantic", y = "Alcohol use")
+```
+
+
+
+#### Comments on findings and result comparation against previous hypotheses.  
+
+##### ```"goout"``` and *H1*.  
+Concerning the variable ```"goout"```, I hypotesized (*H1*) that students who go out more experiences higher alcohol consumption. Overall, it seems that people who go out more, have higher consumptions of alcohol. The most starking differences are between class 1 and 3. But people at 2 have higher consumptions than people at 5.The higher consumption is registered at 3. So it is not self-evident that the more a student goes out, the more drinks, the hypothesis *H1* is not entirely correct.  
+
+##### ```"freetime"``` and *H2*.  
+In regards to the variable ```"freetime"```, its related hypothesis (*H2*) was that students who have more free time are more prone to drink. Again, the levels for the answers 3 - 4 are much higher than 1 - 2 and 5. On a general level the  hypothesis *H2* seems correct. But the distributions of the results see a stark decrease at 5, which has even lower levels than at 2.  
+
+##### ```"studytime"``` and *H3*.  
+When it comes to the findings of the variable ```"studytime"```, it seems to corroborate the hypothesis (*H3*) according to which the more the studytime, the less a student drinks.  The value in 2 is higher than 1 but the consumption decreases at the increasing of the studytime.  
+
+##### ```"romantic"``` and *H4*.  
+Finally, to the variable ```"romantic"```, I associated the hypothesis (*H4*) that romantics drink less than non-romantics, due to courting dynamics. The results seem to confirm the hypothesis *H4*. We see that non-romantics drink as much as twice compared to romantics, males percentage is higher than female one in this category, with a slightly larger gap in non-romantic.  
+
+### 3.2.5.Logistic regression.  
+By using logistic regression we statistically explore the relationship between the four selected variables and the binary high/low alcohol consumption variable as the target variable.  
+
+```{r echo=FALSE}
+m <- glm(high_use ~ goout + freetime + studytime + romantic, data = alc, family = "binomial")
+```
+
+#### Summary of the fitted model and its interpretation.
+```{r echo=FALSE}
+summary(m)
+```
+
+##### Interpretation of the coefficients of the model as odd ratios, provision of confidence intervals for them.  
+
+```{r echo=FALSE}
+coef(m)
+```
+
+Odd ratio (OR) is obtained with the division of the odds of "success" (__*Y*__ = 1) for students who have the property __*X*__, by the odds of "success" of those who have __not__. As OR quantifies the relations between __*X*__ and __*Y*__, Odds __higher than 1__ indicates that __*X*__ is __positively associated__ with "success". The odds ratios can be seen also as exponents of the coefficients of a logistic regression model.
+
+```{r echo=FALSE}
+library(dplyr)
+```
+Computation of the odds ratio (OR)
+```{r echo=FALSE}
+OR <- coef(m) %>% exp
+```
+Computation of the confidence intervals for the coefficients by the function ```confint()```, and exponentiation of the values by using ```exp()```.
+```{r echo=FALSE}
+confint(m)
+```
+```{r echo=FALSE}
+CI <- exp(confint(m))
+```
+Obtaining the odds ratio with their confidence intervals by using ```cbind()```:
+```{r echo=FALSE}
+cbind(OR, CI)
+```
+Values bigger than 1 are seen fully in goout, freetime, and partially in 97.5% of romantic.
+
+```{r echo=FALSE, eval=FALSE}
+[Reference](https://campus.datacamp.com/courses/helsinki-open-data-science/logistic-regression?ex=10)
+```
+
+##### Result interpretation and comparation with previously formulated hypotheses.  
+
+
+### 3.2.6.Predictive power of the model.  
+
+
+#### Variables with statistical relationships with high/low alcohol consumption.  
+
+###### Cross tabulations and actual values *vs* predictions graphic.
+
+###### Training error, and result comments. Model performance *vs* guessing.  
+
+### 3.2.7. __Bonus__: 10-fold model cross-validation.  
+
+### 3.2.8. __Super Bonus__: performance comparation via cross-validation.
