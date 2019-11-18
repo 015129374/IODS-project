@@ -174,6 +174,7 @@ g4 + geom_boxplot() + labs(x = "Romantic", y = "Alcohol use")
 
 
 #### Comments on findings and result comparation against previous hypotheses.  
+Overall, for the chosen variables, only the females seem to present outliers. As for the whiskers the females vary more than males except for the variable romantic. The only skewed plot is the romantic males' one. Let's now proceed to the hypotheses' comparation.
 
 ##### ```"goout"``` and *H1*.  
 Concerning the variable ```"goout"```, I hypotesized (*H1*) that students who go out more experiences higher alcohol consumption. Overall, it seems that people who go out more, have higher consumptions of alcohol. The most starking differences are between class 1 and 3. But people at 2 have higher consumptions than people at 5.The higher consumption is registered at 3. So it is not self-evident that the more a student goes out, the more drinks, the hypothesis *H1* is not entirely correct.  
@@ -218,31 +219,241 @@ Computation of the confidence intervals for the coefficients by the function ```
 ```{r echo=FALSE}
 confint(m)
 ```
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 CI <- exp(confint(m))
 ```
 Obtaining the odds ratio with their confidence intervals by using ```cbind()```:
 ```{r echo=FALSE}
 cbind(OR, CI)
 ```
-Values bigger than 1 are seen fully in goout, freetime, and partially in 97.5% of romantic.
+
+#### Result interpretation and comparison with previously formulated hypotheses.  
+Values bigger than 1 are seen fully in goout, freetime (except for 2,5%), and in 97.5% of romantic, here there is positive correlation. These results moslty confirmedv my hypotheses apart from the studytime.
 
 ```{r echo=FALSE, eval=FALSE}
 [Reference](https://campus.datacamp.com/courses/helsinki-open-data-science/logistic-regression?ex=10)
 ```
 
-##### Result interpretation and comparation with previously formulated hypotheses.  
-
-
 ### 3.2.6.Predictive power of the model.  
+First we use the function to ```predict()``` the probability of high use, after modifying the dataset ```'alc'``` with the new integration we move to predict probabilities and classes, and to tabulate the target variables versus the predictions: 
 
+```{r echo=FALSE}
+m <- glm(high_use ~ goout + freetime + studytime + romantic, data = alc, family = "binomial")
+```
 
-#### Variables with statistical relationships with high/low alcohol consumption.  
+```{r echo=FALSE}
+probabilities <- predict(m, type = "response")
+```
 
-###### Cross tabulations and actual values *vs* predictions graphic.
+```{r echo=FALSE}
+alc <- mutate(alc, probability = probabilities)
+```
 
-###### Training error, and result comments. Model performance *vs* guessing.  
+```{r echo=FALSE}
+alc <- mutate(alc, prediction = probability > 0.5)
+```
+
+```{r echo=FALSE}
+select(alc, goout, freetime, studytime, romantic, probability, prediction) %>% tail(10)
+```
+
+##### Cross tabulations and actual values *vs* predictions graphic.  
+```{r echo=FALSE}
+table(high_use = alc$high_use, prediction = alc$prediction)
+```
+
+```{r echo=FALSE}
+library(dplyr); library(ggplot2)
+```
+
+```{r echo=FALSE}
+g <- ggplot(alc, aes(x =probability, y = high_use, col = prediction))
+```
+
+```{r echo=FALSE}
+g + geom_point()
+```
+
+```{r echo=FALSE}
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table %>% addmargins
+```
+
+##### Training error, and result comments. Model performance *vs* guessing.  
+Accuracy measures the performance in binary classifications as the average number of correctly classified observations. The mean of incorrectly classified observations can be seen as a penalty function of the classifier: the less the better. In this section, first we define a loss function ```loss_func()```, and then we apply it to probability = 0, probability = 1 and then to the prediction probabilities in ```alc```.
+
+```{r echo=FALSE}
+loss_func <- function(class, prob) {
+ n_wrong <- abs(class - prob) > 0.5
+ mean(n_wrong)
+}
+```
+
+```{r echo=FALSE}
+loss_func(class = alc$high_use, prob = 0)
+```
+
+```{r echo=FALSE}
+loss_func(class = alc$high_use, prob = 1)
+```
+
+```{r echo=FALSE}
+loss_func(class = alc$high_use, prob = alc$probability)
+```
+
+The first and third functions deliver better results than in the case of probability = 1. Itworks better than guessing.
 
 ### 3.2.7. __Bonus__: 10-fold model cross-validation.  
+Cross validation is a technique to assess how the results of a statistical analysis will generalize to an independent data set. In a cross validation, a sample of data is partitioned into complementary subsets (training, larger and testing, smaller), performing the analysis on the former and validating the results on the latter. The subsets used here are K = 10.
+
+```{r, echo=FALSE}
+loss_func <- function(class, prob) {
+        n_wrong <- abs(class - prob) > 0.5
+        mean(n_wrong)
+}
+```
+
+```{r, echo=FALSE}
+loss_func(class = alc$high_use, prob = alc$probability)
+```
+
+```{r, echo=FALSE}
+library(boot)
+```
+
+```{r, echo=FALSE, include=FALSE}
+nrow(alc)
+```
+
+```{r, echo=FALSE, include=FALSE}
+K = nrow(alc)
+```
+
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = nrow(alc))
+```
+
+```{r, echo=FALSE}
+cv$delta[1]
+```
+
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+```
+
+```{r, echo=FALSE}
+cv$delta[1]
+```
+The ten-fold cross validation shows higher prediction error on the testing data compared to the training data. It is also lower than the 0.26 in the Datacamp exercise.
 
 ### 3.2.8. __Super Bonus__: performance comparation via cross-validation.
+At first I use a logistic regression model with 22 predictors.
+```{r echo=FALSE}
+m <- glm(high_use ~ school + reason + nursery + internet + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + higher + romantic + famrel + freetime + goout + health + absences + G1 + G2 +G3, data = alc, family = "binomial")
+```
+
+```{r, echo=FALSE}
+loss_func <- function(class, prob) {
+        n_wrong <- abs(class - prob) > 0.5
+        mean(n_wrong)
+}
+```
+
+```{r, echo=FALSE}
+loss_func(class = alc$high_use, prob = alc$probability)
+```
+
+```{r, echo=FALSE}
+library(boot)
+```
+
+```{r, echo=FALSE, include = FALSE}
+nrow(alc)
+```
+
+```{r, echo=FALSE}
+K = nrow(alc)
+```
+
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = nrow(alc))
+```
+The function is performed with leave-one-out cross validation.
+```{r, echo=FALSE}
+cv$delta[1]
+```
+
+Here the result is given by ten-fold cross validation.
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+```
+
+```{r, echo=FALSE}
+cv$delta[1]
+```
+
+With 15 predictors
+```{r echo=FALSE}
+m <- glm(high_use ~ nursery + internet + guardian + traveltime + studytime + failures + famsup + paid + activities + higher + romantic + famrel + freetime + goout + health, data = alc, family = "binomial")
+```
+
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = nrow(alc))
+```
+
+The function is performed with leave-one-out cross validation.
+```{r, echo=FALSE}
+cv$delta[1]
+```
+
+Here the result is given by ten-fold cross validation.
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+```
+
+```{r, echo=FALSE}
+cv$delta[1]
+```
+With 10 predictors
+```{r echo=FALSE}
+m <- glm(high_use ~ internet + guardian + traveltime + studytime + failures + activities + higher + romantic + freetime + goout, data = alc, family = "binomial")
+```
+
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = nrow(alc))
+```
+The function is performed with leave-one-out cross validation.
+```{r, echo=FALSE}
+cv$delta[1]
+```
+
+Here the result is given by ten-fold cross validation.
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+```
+
+```{r, echo=FALSE}
+cv$delta[1]
+```
+
+With 5 predictors
+```{r echo=FALSE}
+m <- glm(high_use ~ studytime + romantic + freetime + goout, data = alc, family = "binomial")
+```
+
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = nrow(alc))
+```
+
+The function is performed with leave-one-out cross validation.
+```{r, echo=FALSE}
+cv$delta[1]
+```
+
+Here the result is given by ten-fold cross validation.
+```{r, echo=FALSE}
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+```
+
+```{r, echo=FALSE}
+cv$delta[1]
+```
