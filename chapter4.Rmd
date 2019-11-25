@@ -1,0 +1,400 @@
+# Chapter 4: Clustering and Classification.  
+
+## 4.2.Data Analysis.
+
+### 4.2.2.Loading of the Boston data from the MASS Package. Description, structure and dimension.
+```{r echo = FALSE, include=FALSE}
+library(MASS)
+```
+
+```{r echo = FALSE, include=FALSE}
+data(Boston)
+```
+
+The dataset [Boston](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html), is about the housing values in the suburbs of the homonym city. I use the functions ```str()``` and ```dim()``` to explore the dataset.Here is its structure:
+```{r echo = FALSE}
+str(Boston)
+```
+And here its dimension:
+```{r echo = FALSE}
+dim(Boston)
+```
+
+### 4.2.3.Graphical overview of the data and variables' summary.  
+Let's have a look at the ```summary()``` of the variables:
+```{r, echo=FALSE}
+summary(Boston)
+```
+
+Using the function ```pairs()``` we obtain the following graphical overview:
+```{r echo = FALSE}
+pairs(Boston)
+```
+
+From the plot above is a bit difficult to see relations between variables. Let's try to use something else, for instance a correlation plot. By using the function ```corrplot()``` we can obtain a visual way to look at correlations. First we need to calculate the correlation matrix by using ```cor()```:
+
+```{r, echo=FALSE, include=FALSE, warning=FALSE}
+install.packages("corrplot", repos="https://cloud.r-project.org/")
+```
+
+```{r, echo=FALSE, include=FALSE}
+library(corrplot); library(tidyverse)
+```
+
+```{r, echo=FALSE}
+cor_matrix <-cor(Boston)
+```
+
+```{r, echo=FALSE}
+cor_matrix %>% round(digits = 2)
+```
+
+Now that we have the matrix, rounded to the first two digits, we can proceed to create the correlation plot by using ```corrplot()```. Here is how it looks like:
+
+```{r, echo=FALSE}
+corrplot(cor_matrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6, order = "hclus")
+```
+
+#### Outputs' description and interpretation of the variables' distributions and relations.  
+The ```corrplot()``` provides us with a graphical overview of the Pearson's correlation coefficient calculated with ```cor```. This measure quantifies the degree to which an association tends to *a certain pattern*. In this case it summarize the strength of a __linear__ association. As we see here, the value *0* means that two variables are uncorrelated. A value of *-1* (in red) or *1* (in blue) shows that they are perfectly related.  
+As we can see here, the dimensions and intensity of colour of the dots visually shows the strenght of the linear associations. I used ```order = "hclust"``` as the ordering method for this correlation matrix as it makes the matrix more immediate to read.
+Among the strongest negative correlations there are: ```dis nox```, ```dis indus```, ```dis age```, ```lstat rm```, and ```lstat  medv```.
+On the contrary, among the strongest positive correlations we find: ```tax rad```, ```tax indus```, ```nox indus```, ```nox age```.
+Overall, only the variable ```chas``` seems to have very little if none statistical correlation at all.
+
+```{r, echo=FALSE}
+#[Reference](https://dzchilds.github.io/eda-for-bio/relationships-between-two-variables.html) 
+```
+
+### 4.2.4.Dataset standardization.  
+We scale the dataset by using the ```scale()``` function, then we can see the scaled variables with ```summary()```:
+```{r, echo=FALSE}
+#Center and standardize variables.
+boston_scaled <- scale(Boston)
+```
+
+```{r, echo=FALSE}
+#Summaries of the scaled variables.
+summary(boston_scaled)
+```
+
+The function ```scale()``` operated on the variables by subtracting the columns means from the corresponding columns and dividing the difference with standard deviation. Here it was possible to scale the whole dataset as it contains only numerical values.
+
+
+The class of the ```boston_scaled``` object is a:
+```{r, echo=FALSE}
+class(boston_scaled)
+```
+
+so, to complete the procedure, we change the object into a data frame.
+```{r, echo=FALSE}
+boston_scaled <- as.data.frame(boston_scaled)
+```
+
+
+#### Creation of the categorical variable of the crime rate (with quantiles as break points).  
+To create the categorial variable, we use the function ```cut()``` together with ```quantile()```to have our factor variable divided by quantiles in order to get four rates of crime:
+```{r, echo=FALSE, include=FALSE}
+#summary of the scaled crime rate.
+summary(boston_scaled$crim)
+```
+```{r, echo=FALSE, include=FALSE}
+#create a quantile vector of crim and print it.
+bins <- quantile(boston_scaled$crim)
+bins
+```
+```{r, echo=FALSE, include=FALSE}
+#Create a categorical variable 'crime' and print it.
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, label <- c("low", "med_low", "med_high", "high"))
+crime
+```
+```{r, echo=FALSE}
+#Looking at the table of the new factor 'crime'.
+table(crime)
+```
+```{r, echo=FALSE, include=FALSE}
+#remove original crim from the dataset.
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+```
+```{r, echo=FALSE, include=FALSE}
+#add the new categorical value to the scaled data.
+boston_scaled <- data.frame(boston_scaled, crime)
+```
+
+#### Division of the dataset in ```train``` and ```test``` sets.  
+At first we use ```nrow()``` to count the number of rows in the dataset:
+```{r, echo=FALSE}
+#number of rows in the Boston dataset.
+nrow(boston_scaled)
+```
+```{r, echo=FALSE, include = FALSE}
+#Rows' number in the dataset.
+n <- 506
+```
+```{r, echo=FALSE, include = FALSE}
+#Random choice of 80% of the rows.
+ind <- sample(n, size = n * 0.8)
+ind
+```
+```{r, echo=FALSE, include = FALSE}
+#create train set and print it.
+train <- boston_scaled[ind,]
+train
+```
+```{r, echo=FALSE, include = FALSE}
+#create test set.
+test <- boston_scaled[-ind,]
+test
+```
+
+then with ```ind <- sample()``` we randomly choose a 80% of them to create the ```train``` dataset. With the remaining material we create the ``` test``` set.
+
+### 4.2.5. Linear Discriminant Analysis (LDA).  
+In this section we fit a linear discriminant analysis on the train set, using the categorical crime rate as the target variable, and the other variables are the predictors. Here we can see the plot:
+
+```{r, echo=FALSE, include=FALSE}
+library(MASS)
+```
+
+```{r, echo=FALSE, include=FALSE}
+lda.fit <- lda(crime ~ ., data = train)
+```
+
+```{r, echo=FALSE, include=FALSE}
+classes <- as.numeric(train$crime)
+```
+
+```{r, echo=FALSE}
+plot(lda.fit, col = classes, pch = classes)
+```
+
+```{r, echo=FALSE}
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+```
+
+
+```{r, echo=FALSE}
+plot(lda.fit, dimen = 2)
+lda.arrows(lda.fit, myscale = 2)
+```
+
+### 4.2.6.Class Prediction with LDA on the test data.  
+We will now run a LDA model on the test data, but before that we will save the crime categories from the test set and then we will remove the categorical crime variable from the test dataset.
+
+```{r, echo=FALSE}
+#save the correct classes from test data.
+correct_classes <-test$crime
+```
+
+```{r, echo=FALSE}
+#remove the crime variable from the test data.
+test <- dplyr::select(test, -crime)
+```
+
+```{r, echo=FALSE}
+lda.pred <- predict(lda.fit, newdata = test)
+```
+Here is the cross tabulation of the results with the crime categories from the test set:
+```{r, echo=FALSE}
+table(correct = correct_classes, predicted = lda.pred$class)
+```
+
+#### Comments on the Results.  
+__MISSING__
+
+### 4.2.7.Distance Measuring and Clustering of the Boston dataset.  
+To measure the distance between the observation, at first we standardize the dataset by using ```data.Normalization()``` with ```type = n1``` :
+
+```{r, echo=FALSE, include=FALSE}
+install.packages("clusterSim")
+library(clusterSim)
+data("Boston")
+.
+boston_standardized <- data.Normalization(Boston, type = "n1", normalization = "column")
+
+boston_standardized
+```
+
+```{r, echo=FALSE, include=FALSE}
+#REPEATING THE PROCEDURE FOR THE CRIME VARIABLE in boston_standardized (I HAD TO TAKE IT OFF SINCE IT GAVE ME SOME MISTAKE IN THE NEXT EXERCISESE): summary of the scaled crime rate.
+#summary(boston_standardized$crim)
+```
+```{r, echo=FALSE, include=FALSE}
+#create a quantile vector of crim and print it.
+#bins <- quantile(boston_standardized$crim)
+#bins
+```
+```{r, echo=FALSE, include=FALSE}
+#Create a categorical variable 'crime' and print it.
+#crime <- cut(boston_standardized$crim, breaks = bins, include.lowest = TRUE, label <- c("low", "med_low", "med_high", "high"))
+#crime
+```
+```{r, echo=FALSE}
+#Looking at the table of the new factor 'crime'.
+#table(crime)
+```
+```{r, echo=FALSE, include=FALSE}
+#remove original crim from the dataset.
+#boston_standardized <- dplyr::select(boston_standardized, -crim)
+```
+```{r, echo=FALSE, include=FALSE}
+#add the new categorical value to the scaled data.
+#boston_standardized <- data.frame(boston_standardized, crime)
+```
+
+```{r, echo=FALSE, include=FALSE}
+#Summary of the standardized dataset.
+summary(boston_standardized)
+```
+
+First we run the distance between observations by using the function ```dist()```, which utilizes the euclidean distance, the most common distance measure, then we use also the ```manhattan method```:
+
+```{r, echo=FALSE, include=FALSE}
+dist_eu <- dist(boston_standardized)
+
+summary(dist_eu)
+
+dist_man <- dist(boston_standardized, method = "manhattan")
+
+summary(dist_man)
+```
+
+Then we run calculate and visualize the total within sum of squares, by using ```set.seed(123)``` to prevent assigning random cluster centres, and setting the maximum number of clusters at 10.
+
+```{r, echo = FALSE}
+#set.seed to prevent random assigned cluster centres.
+set.seed(123)
+#determination of the number of clusters.
+k_max <- 10
+#calculation of the total within sum of squares.
+twcss <- sapply(1:k_max, function(k){kmeans(boston_standardized, k)$tot.withinss})
+#Visualization of the results.
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+```
+
+Using the elbow method I think I will choose to go with three centers.
+
+then we run the ```k-means()```:
+```{r, echo=FALSE}
+km <- kmeans(boston_standardized, centers = 3)
+```
+
+```{r, echo = FALSE}
+library(ggplot2)
+pairs(boston_scaled, col = km$cluster)
+```
+
+To be sure, I also try something different, for instance five.
+
+```{r, echo=FALSE}
+km <- kmeans(boston_standardized, centers = 5)
+```
+
+```{r, echo = FALSE}
+library(ggplot2)
+pairs(boston_standardized, col = km$cluster)
+```
+#### RESULTS INTERPRETATION.
+__MISSING__
+
+### BONUS  
+#### K-means and LDA on the original Boston data.
+```{r, echo = FALSE}
+#Standardizing the original Boston data.
+library(MASS)
+data(Boston)
+boston_bonus <- scale(Boston)
+summary(boston_bonus)
+boston_bonus <- as.data.frame(boston_bonus)
+```
+
+Here, as before, is the procedure for the k-means with clusters > 2:
+
+```{r, echo = FALSE}
+#set.seed to prevent random assigned cluster centres.
+set.seed(123)
+#determination of the number of clusters.
+k_max <- 10
+#calculation of the total within sum of squares.
+twcss <- sapply(1:k_max, function(k){kmeans(boston_bonus, k)$tot.withinss})
+#Visualization of the results.
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+```
+
+again, we run the ```k-means()```:
+
+```{r, echo=FALSE}
+km <- kmeans(boston_bonus, centers = 2)
+pairs(boston_bonus, col = km$cluster)
+```
+
+And here the LDA model:
+
+```{r, echo=FALSE, include=FALSE}
+lda.fit <- lda(km$cluster ~ ., data = boston_bonus)
+```
+
+```{r, echo=FALSE, include=FALSE}
+classes <- as.numeric(boston_bonus$crim)
+```
+
+```{r, echo=FALSE}
+plot(lda.fit, col = classes, pch = classes)
+```
+
+```{r, echo=FALSE}
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+```
+
+```{r, echo=FALSE}
+plot(lda.fit, dimen = 2)
+lda.arrows(lda.fit, myscale = 2)
+```
+
+#### RESULT INTERPRETATION.  
+The most influential variable as cluster linear separator is.
+
+### SUPER-BONUS.  
+
+```{r, echo = FALSE}
+model_predictors <- dplyr::select(train,-crime)
+model_predictors
+```
+
+```{r, echo = FALSE}
+#Checking dimensions.
+dim(model_predictors)
+dim(lda.fit$scaling)
+```
+
+```{r, echo=FALSE}
+#Multiplication of the matrix.
+matrix_product <- as.matrix(model_predictors)%*%lda.fit$scaling
+matrix_product <- as.data.frame(matrix_product)
+```
+
+```{r, echo = FALSE}
+install.packages("plotly", repos="https://cloud.r-project.org/")
+library(plotly)
+```
+
+```{r, echo = FALSE}
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type = "scatter3d", mode="markers", color = km$cluster)
+```
+
+The plots differ in .
+The plots shows (similarities).
