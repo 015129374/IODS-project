@@ -3,11 +3,11 @@
 ## 4.2.Data Analysis.
 
 ### 4.2.2.Loading of the Boston data from the MASS Package. Description, structure and dimension.
-```{r echo = FALSE, include=FALSE}
+```{r echo = FALSE, include=FALSE, message = FALSE}
 library(MASS)
 ```
 
-```{r echo = FALSE, include=FALSE}
+```{r echo = FALSE, include=FALSE, message = FALSE}
 data(Boston)
 ```
 
@@ -210,7 +210,7 @@ table(correct = correct_classes, predicted = lda.pred$class)
 __MISSING__
 
 ### 4.2.7.Distance Measuring and Clustering of the Boston dataset.  
-To measure the distance between the observation, at first we standardize the dataset by using ```data.Normalization()``` with ```type = n1``` :
+To measure the distance between the observation, at first we standardize the dataset by using ```data.Normalization()``` with ```type = n1```.
 
 ```{r, echo=FALSE, include=FALSE}
 install.packages("clusterSim",repos="https://cloud.r-project.org/")
@@ -254,7 +254,7 @@ boston_standardized
 summary(boston_standardized)
 ```
 
-First we run the distance between observations by using the function ```dist()```, which utilizes the euclidean distance, the most common distance measure, then we use also the ```manhattan method```:
+Then we run the distance between observations by using the function ```dist()```, which utilizes the euclidean distance, the most common distance measure, then we use also the ```manhattan method```:
 
 ```{r, echo=FALSE, include=FALSE}
 dist_eu <- dist(boston_standardized)
@@ -266,9 +266,10 @@ dist_man <- dist(boston_standardized, method = "manhattan")
 summary(dist_man)
 ```
 
-Then we run calculate and visualize the total within sum of squares, by using ```set.seed(123)``` to prevent assigning random cluster centres, and setting the maximum number of clusters at 10.
+After that, we calculate and visualize the total within sum of squares, by using ```set.seed(123)``` to prevent assigning random cluster centres, and setting the maximum number of clusters at 10.
 
 ```{r, echo = FALSE}
+library(ggplot2)
 #set.seed to prevent random assigned cluster centres.
 set.seed(123)
 #determination of the number of clusters.
@@ -281,27 +282,138 @@ qplot(x = 1:k_max, y = twcss, geom = 'line')
 
 Using the elbow method I think I will choose to go with three centers.
 
-then we run the ```k-means()```:
+then we run the ```k-means()```, I divide the plot in four to improve the clarity:
 ```{r, echo=FALSE}
 km <- kmeans(boston_standardized, centers = 3)
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE}
 library(ggplot2)
-pairs(boston_scaled, col = km$cluster)
+
+attach(boston_standardized)
+par(mfrow=c(2,2))
+pairs(boston_standardized[1:4], col = km$cluster)
+pairs(boston_standardized[5:7], col = km$cluster)
+pairs(boston_standardized[8:10], col = km$cluster)
+pairs(boston_standardized[11:14], col = km$cluster)
 ```
 
 To be sure, I also try something different, for instance five.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message = FALSE}
 km <- kmeans(boston_standardized, centers = 5)
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE}
 library(ggplot2)
-pairs(boston_standardized, col = km$cluster)
+attach(boston_standardized)
+par(mfrow=c(3,1))
+pairs(boston_standardized[1:5], col = km$cluster)
+pairs(boston_standardized[6:9], col = km$cluster)
+pairs(boston_standardized[10:14], col = km$cluster)
 ```
 
 #### RESULTS INTERPRETATION.
 __MISSING__
 
+### BONUS  
+#### K-means and LDA on the original Boston data.  
+```{r, echo = FALSE}
+#Standardizing the original Boston data.
+library(MASS)
+data(Boston)
+boston_bonus <- scale(Boston)
+summary(boston_bonus)
+boston_bonus <- as.data.frame(boston_bonus)
+```
+Here, as before, is the procedure for the k-means with clusters > 2:
+
+```{r, echo = FALSE}
+#set.seed to prevent random assigned cluster centres.
+set.seed(123)
+#determination of the number of clusters.
+k_max <- 10
+#calculation of the total within sum of squares.
+twcss <- sapply(1:k_max, function(k){kmeans(boston_bonus, k)$tot.withinss})
+#Visualization of the results.
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+```
+
+again, we run the ```k-means()```:
+
+```{r, echo=FALSE}
+km <- kmeans(boston_bonus, centers = 3)
+pairs(boston_bonus, col = km$cluster)
+```
+
+And here the LDA model, since the variable ```chas``` appeared to be a constant within group calls I removed it:
+```{r, echo=FALSE, include=FALSE}
+boston_bonus$chas <- NULL
+lda.fit <- lda(km$cluster ~ ., data = boston_bonus)
+```
+
+```{r, echo=FALSE, include=FALSE}
+classes <- as.numeric(km$cluster)
+```
+
+```{r, echo=FALSE}
+plot(lda.fit, col = classes, pch = classes)
+```
+
+```{r, echo=FALSE, include = FALSE}
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", 
+tex = 0.75, choices = c(1,2)){
+heads <- coef(x)
+arrows(x0 = 0, y0 = 0, 
+x1 = myscale * heads[,choices[1]], 
+ y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+ text(myscale * heads[,choices], labels = row.names(heads), 
+cex = tex, col=color, pos=3)
+}
+```
+
+```{r, echo=FALSE}
+plot(lda.fit, dimen = 2)
+lda.arrows(lda.fit, myscale = 2)
+```
+
+#### RESULT INTERPRETATION.  
+The most influential variable as cluster linear separator is the variable ```tax```.
+
+
+### SUPER-BONUS.  
+
+In this section we run the code on the ```train``` scaled dataset to produce two 3D-plots.
+```{r, echo = FALSE, include = FALSE}
+model_predictors <- dplyr::select(train,-crime)
+model_predictors
+```
+
+```{r, echo = FALSE, include = FALSE}
+#Checking dimensions.
+dim(model_predictors)
+dim(lda.fit$scaling)
+```
+
+```{r, echo=FALSE}
+#Multiplication of the matrix.
+matrix_product <- as.matrix(model_predictors)%*%lda.fit$scaling
+matrix_product <- as.data.frame(matrix_product)
+```
+
+```{r, echo = FALSE, include = FALSE, message = FALSE}
+install.packages("plotly", repos="https://cloud.r-project.org/")
+library(plotly)
+```
+
+In this first 3D-plot the color is given by the ```train$crime```:
+
+```{r, echo = FALSE, warning = FALSE}
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type = "scatter3d", mode="markers", col = train$crime)
+```
+
+In this second 3D-plot the color is defined by the ```km$cluster```:
+
+```{r, echo = FALSE, warning = FALSE}
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type = "scatter3d", mode="markers", col = km$cluster)
+```
