@@ -213,7 +213,7 @@ __MISSING__
 To measure the distance between the observation, at first we standardize the dataset by using ```data.Normalization()``` with ```type = n1``` :
 
 ```{r, echo=FALSE, include=FALSE}
-install.packages("clusterSim")
+install.packages("clusterSim", repos="https://cloud.r-project.org/")
 library(clusterSim)
 data("Boston")
 .
