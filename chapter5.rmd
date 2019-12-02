@@ -1,0 +1,187 @@
+## Chapter 5: Dimensionality Reduction Techniques.  
+
+### 5.2.Data Analysis.  
+
+### 5.2.1.Data graphical overview and variables' summary.  
+
+```{r, echo = FALSE, message=FALSE}
+human_ <- read.table("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human2.txt", sep = ",", header = TRUE)
+```
+
+To visualize the data, we use both ```ggpairs()``` and ```corrplot()```:
+```{r, message=FALSE}
+library(GGally); library(corrplot); library(dplyr)
+ggpairs(human_)
+cor(human_) %>% corrplot(method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6, order = "hclus")
+```
+
+#### Comments on the outputs, and on variables' relationships and distributions.  
+The observations are uneven, not all of them follow a normal distribution as the plot suggest, this may require a further standardization later on. Among the strongest inverse correlations we logically have ```Mat.Mor``` and ```Life.Exp```. Also, ```Life.Exp``` and ```Ado.Birth``` have an inverse correlations. ```Edu.Exp```, ```GNI``` and ```Edu2.FM``` all have a negative correlation with those two variables.
+As for the direct correlations, the strongest are ```Ado.Birth``` and ```Mat.mor```, which shows that the adolescent birth rate is positively correlated with maternal mortality. 
+Then, logically we see that ```Life.Exp```, has a strong correlation with ```Edu.Exp``` ```GNI```, and ```Edu2.FM```. Also ```Edu.exp``` has a positive correlation with ```GNI``` and ```Edu2.FM```. Some positive correlation is found also between this last one and ```GNI```.
+As for the variables ```Labo.FM``` and ```Parli.F```, these do not have significant statistical correlations with the other variables.
+
+### 5.2.2.Principal Component Analysis (PCA) on not standardized data.
+```{r, echo=FALSE, include=FALSE}
+#Reference("https://campus.datacamp.com/courses/helsinki-open-data-science/dimensionality-reduction-techniques?ex=6")
+```
+PCA is a statistical procedure that decomposes a matrix into a product of smaller matrices and revals the most important components. In other words, the data are transformed into a new space with equal or less number of dimensions. The first dimension reveals the maximum amount of variance from the features in the original data. As for the second component, it captures the maximum amount of variability left. The principal components are uncorrelated, and the importance of captured variance decreases for each of them.
+In this paragraph we run a PCA on the data visible in the following ```summary()```. We will use the function ```prcomp()```that employs the more numerically accurate  Singular Value Decomposition (SVD). 
+
+```{r, echo = FALSE}
+summary(human_)
+pca_human1 <-prcomp(human_)
+```
+
+Here we have the  ```summary()```for the principal component analysis:
+```{r, echo = FALSE}
+s1 <- summary(pca_human1)
+s1
+```
+
+Before proceeding to the plot, we set the rounded percentage of the variance captured by each principal component. In this case we choose to include only one digit, we create also the axis labels:
+
+```{r}
+pca_pr1 <- round(100*s1$importance[2,], digits = 1)
+pca_pr1
+```
+
+```{r, echo = FALSE, error = FALSE}
+pc_lab1 <- paste0(names(pca_pr1), " (", pca_pr1, "%)")
+```
+
+Then we visualize the results with a ```biplot()``` that displays the observations and the original features (as a scatterplot), and also their relationship with both each others and with the principal components (in form of arrows or labels):
+
+```{r, fig.width=18, fig.height=12, warning=FALSE, message=FALSE}
+biplot(pca_human1, choices = 1:2, cex = c(1, 1.2), col = c("grey50", "deeppink2"), xlab =pc_lab1[1], ylab = pc_lab1[2])
+```
+
+The variability captured by the principal components are respectively of 100% in PC1 and of 0% in PC2, also all the others PCs are 0. This result could have been influenced by the non-standardization of the data as described more below.
+
+
+### 5.2.3.Principal Component Analysis (PCA) on standardized data.
+```{r, echo = FALSE, evaluate = FALSE}
+#[reference](https://mooc.helsinki.fi/mod/page/view.php?id=17349&forceview=1)
+```
+
+It is a good idea to standardize the data because the PCA is sensitive to the relative scaling of the original features. It also assumes that features with larger variance are more important than features with smaller variance. By standardizing variables with different units, we can compare the values of these variables. So, now we repeat the same analysis with standardized variables, whose ```summary()``` is the following: 
+
+```{r, echo = FALSE}
+human_std <- scale(human_)
+summary(human_std)
+pca_human2 <- prcomp(human_std)
+```
+
+and here we have the```summary()```for the ```PCA```:
+```{r, echo = FALSE}
+s2 <- summary(pca_human2)
+s2
+```
+
+We follow again the same procedure as for the non-standardized data, for the rounding of digits and label creation and we obtain these results:
+```{r, echo = FALSE}
+pca_pr2 <- round(100*s2$importance[2,], digits = 1)
+pca_pr2
+```
+
+```{r, echo = FALSE}
+pc_lab2 <- paste0(names(pca_pr2), " (", pca_pr2, "%)")
+```
+
+```{r, fig.width=18, fig.height=12, warning=FALSE, message=FALSE}
+biplot(pca_human2, choices = 1:2, cex = c(1, 1.2), col = c("grey50", "deeppink2"), xlab =pc_lab2[1], ylab = pc_lab2[2])
+```
+
+The results this time seem to be different. With the non-standardized data we had a PC1 that covered the 100% of the data and a PC2 with 0% as the other 6 PCs. In here, using standardized data, we have a PC1 that covers the 53,6% of the data, and then a PC2 that covers the 16,2%; the subsequent PCs are respectively 9.6%, 7.6%, 5.5%, 3.6%, 2.6%, and 1.3%.
+
+
+### 5.2.4. Interpreting of the first two principal components dimensions.
+By choosing the first few principal components we will have uncorrelated variables that capture the maximum amount of data variation. In the PCA with standardized data, The variability captured is shown in the axes __X__ and __Y__. So we have a ```CP1``` that captured the 53,6% variation and ```CP2``` that captured the 16,2% variation.
+PCA is an unsupervised method due to the absence of criteria or target variable. It is a powerful method to encapsulate correlations between the original features into a smaller number of uncorrelated dimensions.
+As for the original variables represented by the arrows the ```Female Representation in Parliament``` and the ```Labo.FM``` are related and constitute the main contributor to the PC2 whilst ```Maternal Morality rate```, and ```Adolescent Birth Rate``` are also related but contribute to the PC1. Also ```Life Exp.``` and ```Education Expectancy```, ```Edu2.FM```, and ```GNI``` are related between them and contribute to PC1. these three groups are almost orthogonal, and that indicates that they are uncorrelated.
+
+### 5.2.5. Multiple correspondence analysis on tea dataset.
+```{r, echo = FALSE, include = FALSE}
+#[Reference](https://campus.datacamp.com/courses/helsinki-open-data-science/dimensionality-reduction-techniques?ex=10)
+```
+
+Multiple Correspondence Analysis can be used if the data consist of categorical variables as in this tea dataset. Here are shown ```dim()```, ```str()```, and ```summary()``` of the dataset variables.
+
+#### Dataset exploration and visualization.  
+In this section we will use the dataset ```tea``` from the ```FactoMineR``` package. I keep only some variables: ```"Tea"```, ```"How"```, ```"how"```, ```"sugar"```, ```"where"```, ```"lunch"```. Here there are the dimension, and structure and summary of the newly composed ```tea_time``` dataset:
+```{r, message = FALSE, warning = FALSE}
+install.packages("FactoMineR", repos="https://cloud.r-project.org/")
+library(FactoMineR); library(dplyr); library(ggplot2); library(tidyr)
+data(tea)
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+tea_time <- select(tea, one_of(keep_columns))
+dim(tea_time)
+str(tea_time)
+summary(tea_time)
+```
+
+Here we proceed to visualize the ```tea_time``` dataset with the following code:
+```{r, warning = FALSE, error = FALSE}
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+#### Multiple Correspondence Analysis.
+```{r, echo = FALSE, include = FALSE}
+#(Reference)[https://rpubs.com/gaston/MCA]
+```
+
+A MCA Biplot shows the possible variable pattern, the distance between them, gives a measure of their similarity. To run a MCA we use the following code:
+```{r, message = FALSE}
+library(MASS)
+mca <- MCA(tea_time, graph = FALSE)
+```
+
+Here we can see the Scree plot:
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+install.packages("factoextra", repos="https://cloud.r-project.org/")
+library(factoextra)
+fviz_screeplot(mca, addlabels = TRUE, ylim = c(0, 45))
+```
+
+To visualize the MCA variable togheter with the individuals I will use a different procedure, because sometimes the biplot is a bit chaotic due to high concentrations. First I find the number of categories per variables:
+```{r}
+cats = apply(tea_time, 2, function(x) nlevels(as.factor(x)))
+cats
+```
+
+Then I obtain the table of eigenvalues, the column and heads coordinates which will form the data frames: 
+```{r}
+mca$eig
+head(mca$var$coord)
+head(mca$ind$coord)
+mca_vars_df = data.frame(mca$var$coord, Variable = rep(names(cats),
+                                                       cats))
+mca_obs_df = data.frame(mca$ind$coord)
+```
+
+With these values I produced the following plot:
+
+```{r, fig.width=12, fig.height=10}
+ggplot(data = mca_vars_df, aes(x = Dim.1, y = Dim.2, label = rownames(mca_vars_df))) +    geom_hline(yintercept = 0, colour = "gray70") + geom_vline(xintercept = 0,                        colour = "gray70") + geom_text(aes(colour = Variable)) + ggtitle("MCA plot of variables using R package FactoMineR")
+```
+
+We can develop the plot to include observations and categories as in a MCA biplot. Because of the overlapping of the individuals, there will be instead the use of density curves to see the zones of high concentration:
+
+```{r, fig.width=12, fig.height=10}
+ggplot(data = mca_obs_df, aes(x = Dim.1, y = Dim.2)) + geom_hline(yintercept = 0, colour = "gray70") + geom_vline(xintercept = 0, colour = "gray70") + geom_point(colour = "gray50",
+alpha = 0.7) + geom_density2d(colour = "gray80") + geom_text(data = mca_vars_df,
+aes(x = Dim.1, y = Dim.2, label = rownames(mca_vars_df), colour = Variable)) + ggtitle("MCA plot of variables using R package FactoMineR") + scale_colour_discrete(name = "Variable")
+```
+
+Here we see the ```summary()``` of the mca, which will be commmented on, in the next section:
+```{r, echo = FALSE}
+summary(mca)
+```
+
+#### Comments.  
+In this output we can see the *Eigenvalues*, in other words the variances and the percentage of variances retained by each dimensions. 
+
+There are also *individuals* coordinates, and contribution to the dimension expressed in percentage, and the *cos^2^*, the squared correlations on the dimensions.
+
+In the *categories* section, we see the coordinates of the varibale categories, the contribution in percentage, the *cos^2^* and *v.test* value that follows the normale distribution. If it is below/above 1.96 + o - it is significantly different from zero.
+The *categorical variables* shows the squared correlation between each variable and dimensions. If the value is close to one it suggests a strong link with the variable and dimension.

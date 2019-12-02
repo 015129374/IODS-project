@@ -1,4 +1,5 @@
 #Francesco Durante, 21.11.2019, Assignment 4.1 Data wrangling.
+#Francesco Durante, 27.11.2019, Assignment 5.1 Data wrangling.
 
 #4.1.2.Reading the datasets "human development" and "gender inequality index":
 
@@ -61,12 +62,12 @@ colnames(gii)
 library(dplyr); library(ggplot2)
 
 #First new variable: Female and Male ratio of populations with secondary education in each country. (edu2F/edu2M).
-gii <- mutate(gii, edu2.FM = (Edu2.F/Edu2.M))
-
+gii <- mutate(gii, Edu2.FM = (Edu2.F/Edu2.M))
 
 
 #Second new variable: Female and Male ratio of labour force participation in each country (i.e. labF / labM).
 gii <- mutate(gii, Labo.FM = (Labo2.F/Labo2.M))
+
 
 #joining the two datasets
 library(dplyr)
@@ -83,5 +84,41 @@ write.csv(human, file = "human.csv")
 
 write.table(human, file = "human.txt", sep = "\t", row.names = TRUE, col.names = NA)
 
+#5.1. Reading the data file [As using my file from the past week gave a wrong dimension I use the link.]
+human5.1 <- read.table("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human1.txt", sep = ",", header = TRUE)
 
-read.csv("human.csv")
+#The dataset comes from the United Nations Development Programme, and it is used to calculate the human development index.
+# It has a dimension of 195 observations for 9 variables and it includes the following columns and dimensions.
+names(human5.1)
+str(human5.1)
+dim(human5.1)
+summary(human5.1)
+
+
+
+#5.1.1. Transforming GNI to numeric variable.
+library(stringr)
+str(human5.1$GNI)
+str_replace(human5.1$GNI, pattern=",", replace ="") %>% as.numeric
+
+#5.1.2. Exluding unneded variables.
+library(dplyr)
+keep <- c("Country", "Edu2.FM", "Labo.FM", "Edu.Exp", "Life.Exp", "GNI", "Mat.Mor", "Ado.Birth", "Parli.F")
+human5.1 <- select(human5.1, one_of(keep))
+
+#5.1.3. Removing all rows with missing values.
+complete.cases(human5.1)
+data.frame(human5.1[-1], comp = complete.cases(human5.1))
+human_ <- filter(human5.1, complete.cases(human5.1))
+
+#5.1.4. Removing regional observations.
+tail(human5.1, 10)
+last <- nrow(human5.1) - 7
+human_ <- human5.1[1:last, ]
+
+dim(human_)
+
+#save data
+write.table(human_, file = "human_.csv", sep = ",", row.names = TRUE, col.names = NA)
+
+read.csv("human_.csv")
