@@ -1,7 +1,9 @@
 ## Chapter 5: Dimensionality Reduction Techniques.  
 
-### 5.2.Data Analysis.  
+### 5.1.Data Wrangling.  
+The data wrangling for this week assignment was a continuation of the last week work on the Human dataset. The work for this week can be found [here](https://github.com/015129374/IODS-project/blob/master/Data/human.R).
 
+### 5.2.Data Analysis.  
 ### 5.2.1.Data graphical overview and variables' summary.  
 
 ```{r, echo = FALSE, message=FALSE}
