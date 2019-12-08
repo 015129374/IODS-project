@@ -367,7 +367,7 @@ summary {
 
 <div id="chapter-6-analysis-of-longitudinal-data." class="section level2">
 <h2>Chapter 6: Analysis of Longitudinal Data.</h2>
-<p>In this last chapter, we will perform the analyses of the MABS at the book’s chapters 8-9. As for the chapter 8, we will utilize the <code>RATS</code> dataset, whilst for the chapter 9 we will use the <code>BPRS</code> dataset. Both dataset were transformed in long data format in the 6.1.1.Data Wrangling Exercise available <a href="https://github.com/015129374/IODS-project/commit/76a56e201746699dcdb4d5f431fbead685e2f927">here</a>.</p>
+<p>In this last chapter, we will perform the analyses of the MABS at the book’s chapters 8-9. As for the chapter 8, we will utilize the <code>RATS</code> dataset, whilst for the chapter 9 we will use the <code>BPRS</code> dataset. Both dataset were transformed in long data format in the 6.1.1.Data Wrangling Exercise available <a href="https://github.com/015129374/IODS-project/blob/master/Data/meet_and_repeat.R">here</a>.</p>
 <div id="analysis-of-longitudinal-data-i-graphical-displays-and-summary-measure-approach-with-the-rats-dataset." class="section level3">
 <h3>6.2.1. Analysis of Longitudinal Data I: Graphical Displays and Summary Measure Approach with the RATS dataset.</h3>
 <p>The <code>RATS</code> dataset comes from a nutrition study by Crowder and Hand (1990), on three groups of rats which were fed differently and had their weight recorded over a nine-week period. The main question is whether the growth profiles differ. After reading the table with the function <code>read.table()</code>, we factorize the variables <code>&quot;ID&quot;</code> and <code>&quot;Group&quot;</code>, and we add the variable <code>&quot;Time&quot;</code>, now we have the <code>RATS</code> in the long format <code>RATSL</code>:</p>
@@ -813,7 +813,7 @@ summary(BPRS_ref2)</code></pre>
 ## week        -0.650              
 ## treatment2  -0.424  0.469       
 ## wek:trtmnt2  0.356 -0.559 -0.840</code></pre>
-<p>We can then plot the the fitted bprs for each subject:</p>
+<p>We can then plot the fitted bprs for each subject:</p>
 <pre class="r"><code>Fitted &lt;- fitted(BPRS_ref2)
 BPRSL &lt;- BPRSL %&gt;% mutate(Fitted)
 

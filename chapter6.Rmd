@@ -1,5 +1,5 @@
 ## Chapter 6: Analysis of Longitudinal Data.
-In this last chapter, we will perform the analyses of the MABS at the book's chapters 8-9. As for the chapter 8, we will utilize the ```RATS``` dataset, whilst for the chapter 9 we will use the ```BPRS``` dataset. Both dataset were transformed in long data format in the 6.1.1.Data Wrangling Exercise available [here](https://github.com/015129374/IODS-project/commit/76a56e201746699dcdb4d5f431fbead685e2f927).
+In this last chapter, we will perform the analyses of the MABS at the book's chapters 8-9. As for the chapter 8, we will utilize the ```RATS``` dataset, whilst for the chapter 9 we will use the ```BPRS``` dataset. Both dataset were transformed in long data format in the 6.1.1.Data Wrangling Exercise available [here](https://github.com/015129374/IODS-project/blob/master/Data/meet_and_repeat.R).
 
 ### 6.2.1. Analysis of Longitudinal Data I: Graphical Displays and Summary Measure Approach with the RATS dataset.
 The ```RATS``` dataset comes from a nutrition study by Crowder and Hand (1990), on three groups of rats which were fed differently and had their weight recorded over a nine-week period. The main question is whether the growth profiles differ.
