@@ -63,3 +63,4 @@ dim(alc)
 write.csv(alc, file = "alc.csv")
 
 write.table(alc, file = "alc.txt", sep = "\t", row.names = TRUE, col.names = NA)
+read.csv("alc.csv")
