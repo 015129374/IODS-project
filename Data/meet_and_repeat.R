@@ -47,4 +47,6 @@ summary(RATSL)
 #[Reference](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/)
 
 write.table(RATSL, file = "RATSL.csv", sep = ",", row.names = TRUE, col.names = NA)
+write.table(BPRSL, file = "BPRSL.csv", sep = ",", row.names = TRUE, col.names = NA)
 read.csv("RATSL.csv")
+read.csv("BPRSL.csv")
